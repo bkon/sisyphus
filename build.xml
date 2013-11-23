@@ -1,0 +1,139 @@
+<project name="Sisyphus" default="dist" basedir=".">
+  <description>
+    Builds Sisyphis::C14n
+  </description>
+
+  <!-- create a directory for quality report files -->
+  <target name="report-dir">
+    <mkdir dir="out/reports"/>
+  </target>
+
+  <!-- run PHP_CodeSniffer -->
+  <target name="codesniffer"
+          depends="report-dir">
+    <exec executable="phpcs">
+      <arg line="--standard=ZEND"/>
+      <arg line="--report-full=out/reports/codesniffer.txt"/>
+      <arg line="--report-xml=out/reports/codesniffer.xml"/>
+      <arg line="--report-summary"/>
+      <arg line="--report-gitblame"/>
+      <arg line="--warning-severity=0"/><!-- warnings are ignored during the build -->
+      <arg line="src"/>
+    </exec>
+
+    <xslt in="out/reports/codesniffer.xml"
+          out="out/reports/codesniffer.junit.xml"
+          style="build/phpcs_to_junit.xslt"/>
+  </target>
+
+  <!-- run PHP Mess Detector -->
+  <target name="phpmd"
+          depends="report-dir">
+    <!-- CI-friendly format -->
+    <exec executable="phpmd">
+      <arg line="src"/>
+      <arg line="xml"/>
+      <arg line="build/phpmd_rules.xml"/>
+      <arg line="--reportfile out/reports/phpmd.xml"/>
+    </exec>
+
+    <xslt in="out/reports/phpmd.xml"
+          out="out/reports/phpmd.junit.xml"
+          style="build/phpmd_to_junit.xslt"/>
+
+    <!-- human-friendly format -->
+    <exec executable="phpmd">
+      <arg line="src"/>
+      <arg line="text"/>
+      <arg line="build/phpmd_rules.xml"/>
+      <arg line="--reportfile out/reports/phpmd.txt"/>
+    </exec>
+  </target>
+
+  <!-- run hhvm static analisys -->
+  <target name="hhvm"
+          depends="report-dir">
+    <!-- CI-friendly format -->
+    <exec executable="hhvm-wrapper">
+      <arg line="analyze"/>
+      <arg line="--checkstyle out/reports/hhvm.xml"/>
+      <arg line="--ruleset build/hhvm-ruleset.xml"/>
+      <arg line="src"/>
+    </exec>
+
+    <xslt in="out/reports/hhvm.xml"
+          out="out/reports/hhvm.junit.xml"
+          style="build/checkstyle_to_junit.xslt"/>
+  </target>
+
+  <!-- run PHP Copy-Paste detector -->
+  <target name="phpcpd"
+          depends="report-dir">
+    <exec executable="phpcpd">
+      <arg line="src"/>
+    </exec>
+  </target>
+
+  <!-- generate checkstyle output for phpdocumentor -->
+  <target name="doc-checkstyle"
+          depends="report-dir">
+    <exec executable="phpdoc">
+      <arg line="--directory src"/>
+      <arg line="--target out/doc"/>
+      <arg line="--template checkstyle"/>
+    </exec>
+
+    <xslt in="out/doc/checkstyle.xml"
+          out="out/reports/phpdocumentor.junit.xml"
+          style="build/checkstyle_to_junit.xslt"/>
+  </target>
+
+  <!-- run all code quality assurance tools -->
+  <target name="quality"
+          depends="codesniffer, phpmd, phpcpd, hhvm, doc-checkstyle">
+  </target>
+
+  <!-- run unit tests -->
+  <target name="tests"
+          depends="report-dir">
+    <exec executable="phpunit"
+          dir="tests"
+          failonerror="true">
+      <arg line="--log-junit ../out/reports/phpunit.xml"/>
+      <arg line="."/>
+    </exec>
+  </target>
+
+  <!-- generate unit test coverate reports -->
+  <target name="coverage">
+    <exec executable="phpunit"
+          dir="tests"
+          failonerror="true">
+      <arg line="--coverage-clover ../out/reports/clover.xml"/>
+      <arg line="--coverage-html ../out/reports/coverage"/>
+      <arg line="."/>
+    </exec>
+
+    <xslt in="out/reports/clover.xml"
+          out="out/reports/coverage.junit.xml"
+          style="build/coverage_to_junit.xslt"/>
+  </target>
+
+  <!-- generate documentation -->
+  <target name="doc">
+    <exec executable="phpdoc">
+      <arg line="--directory src"/>
+      <arg line="--target out/doc"/>
+    </exec>
+  </target>
+
+  <!-- run all tasks required for code distribution -->
+  <target name="dist"
+          depends="tests, coverage, quality, doc">
+  </target>
+
+  <!-- cleanup generated files -->
+  <target name="clean">
+    <delete dir="out"/>
+  </target>
+</project>

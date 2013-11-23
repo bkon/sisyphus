@@ -1,0 +1,9 @@
+<phpunit
+    bootstrap="phpunit-bootstrap.php"
+    >
+  <filter>
+    <blacklist>
+      <directory suffix=".php">../tests</directory>
+    </blacklist>
+  </filter>
+</phpunit>
