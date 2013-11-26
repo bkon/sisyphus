@@ -67,15 +67,15 @@ class Sisyphus_C14n_Legacy_Nodeset
             $xpath->registerNamespace($prefix, $uri);
         };
 
+        $nodeset = array();
+        // Note that we should use original apex node as a
+        // context node for XPath expression
+        foreach ($xpath->query($query, $apex) as $n) {
+            $nodeset[] = $n;
+        };
+
         $this->setNodeset(
-            iterator_to_array(
-                $xpath->query(
-                    $query,
-                    // Note that we should use original apex node as a
-                    // context node for XPath expression
-                    $apex
-                )
-            )
+            $nodeset
         );
 
         return $this;

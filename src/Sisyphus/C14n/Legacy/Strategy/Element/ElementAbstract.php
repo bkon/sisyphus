@@ -127,7 +127,7 @@ abstract class Sisyphus_C14n_Legacy_Strategy_Element_ElementAbstract
     protected function generateNamespaceString(DOMElement $node)
     {
         $orderedNamespaces = $this->sortNamespaces(
-            iterator_to_array($this->getNodeNamespaces($node))
+            $this->getNodeNamespaces($node)
         );
 
         $namespaceString = '';
@@ -242,12 +242,17 @@ abstract class Sisyphus_C14n_Legacy_Strategy_Element_ElementAbstract
      * @param  DOMElement  $node  DOM  element  used  as  a  base  for
      * namespace axis
      *
-     * @return DOMNodeList list of namespace nodes
+     * @return DOMNode[] list of namespace nodes
      */
     protected function getNodeNamespaces(DOMElement $node)
     {
         $xpath = new DOMXPath($node->ownerDocument);
-        return $xpath->query('namespace::*', $node);
+
+        $result = array();
+        foreach ($xpath->query('namespace::*', $node) as $n) {
+            $result[] = $n;
+        };
+        return $result;
     }
 
     /**
