@@ -46,3 +46,7 @@ $service
 
 $outputString = $service->canonicalize($xmlDocument)
 ```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/bkon/sisyphus/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
