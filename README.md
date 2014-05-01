@@ -31,6 +31,14 @@ Runtime: PHP 5.1
 Development:  ant,  phpunit,  phpmd,  phpcs,  hhvm  and  hhvm-wrapper,
 phpcpd, phpdoc.
 
+### PHP 5.3+
+
+If your using PHP 5.2+ you won't need this package, but it's available as a composer package anyway.
+
+```bash
+composer install
+```
+
 Basic usage
 -----------
 
