@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bkon/sisyphus.svg?branch=master)](https://travis-ci.org/bkon/sisyphus)
+
 Sisyphus::C14N
 ==============
 
